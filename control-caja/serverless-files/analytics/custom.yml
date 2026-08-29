@@ -1,0 +1,81 @@
+# Tags
+tagAplicativo:               ${env:tagAplicativo}
+tagArea:                     ${env:tagArea}
+tagCelula:                   ${env:tagCelula}
+tagCompania:                 ${env:tagCompania}
+tagDisponibilidad:           ${env:tagDisponibilidad}
+tagProducto:                 ${env:tagProducto}
+tagProyecto:                 ${env:tagProyecto}
+# project
+stage:                      ${opt:stage}
+project:                    ${env:project}
+deploymentBucketName:       ${env:deploymentBucketName}
+resourcesStackName:         ${self:custom.project}-resources-${self:custom.stage}
+
+chronosBucketName:          ${env:chronosBucketName}-${self:custom.stage}
+datafoundationBucket:       ${env:datafoundationBucket}
+extraPythonFilesControlCaja:        ${env:extraPythonFilesControlCaja}
+glueJobVersion:             ${env:glueJobVersion}
+prefixData:                 ${env:prefixData}
+prefixFiles:                ${env:prefixFiles}
+projectBucket:              ${env:projectBucket}
+projectBucketARN:           ${cf:${self:custom.resourcesStackName}.MarketRiskBucketARN}
+projectBucketJobsPath:      ${env:projectBucketJobsPath}
+projectGlueDatabase:        ${env:glueDatabase}
+
+# Databases
+rtbcolDatabase:               ${env:rtbcolDatabase}
+unityDatabase:                ${env:unityDatabase}
+trmDatabase:                  ${env:trmDatabase}
+dominusDatabase:              ${env:dominusDatabase}
+mambuCcDatabase:              ${env:mambuCcDatabase}
+checkingAccountsDatabase:     ${env:checkingAccountsDatabase}
+adapterDatabase:              ${env:adapterDatabase}
+
+# Tables
+unityOperationsTable:         ${env:unityOperationsTable}
+bankBalancesTable:            ${env:bankBalancesTable}
+moneyMarketTable:             ${env:moneyMarketTable}
+ccMovementsTable:             ${env:ccMovementsTable}
+masterHomologationTable:      ${env:masterHomologationTable}
+multicashMovementsTable:      ${env:multicashMovementsTable}
+umbrellaMasterTable:          ${env:umbrellaMasterTable}
+trmTable:                     ${env:trmTable}
+renewalOperationsTable:       ${env:renewalOperationsTable}
+operationsATable:             ${env:operationsATable}
+operationsBTable:             ${env:operationsBTable}
+standardizedDerivativesTable: ${env:standardizedDerivativesTable}
+mambuAccountsTable:           ${env:mambuAccountsTable}
+mambuTransactionsTable:       ${env:mambuTransactionsTable}
+mambuChannelsTable:           ${env:mambuChannelsTable}
+balanceTable:                 ${env:balanceTable}
+depositAccountTable:          ${env:depositAccountTable}
+reconciliationAdapterTable:   ${env:reconciliationAdapterTable}
+
+marketDatabase:               ${env:marketDatabase}
+incomeTable:                  ${env:incomeTable}
+expenseTable:                 ${env:expenseTable}
+availableTable:               ${env:availableTable}
+summaryTable:                 ${env:summaryTable}
+
+
+analyticsAccountIdStage:
+  dev: ${env:analyticsAccountIdDEV}
+  uat: ${env:analyticsAccountIdUAT}
+  pdn: ${env:analyticsAccountIdPDN}
+analyticsAccountId: ${self:custom.analyticsAccountIdStage.${self:custom.stage}}
+
+dataLakeNameStaging:         s3-${self:custom.analyticsAccountId}-datalake-${self:custom.stage}-staging
+dataLakeNameTrusted:         s3-${self:custom.analyticsAccountId}-datalake-${self:custom.stage}-trusted
+
+kmsARNStage:
+  dev:                       ${env:arnKmsDEV}
+  uat:                       ${env:arnKmsUAT}
+  pdn:                       ${env:arnKmsPDN}
+kmsARN:                      ${self:custom.kmsARNStage.${self:custom.stage}}
+
+jobNumberOfWorkersStage:
+  dev:                       ${env:jobNumberOfWorkersDEV}
+  uat:                       ${env:jobNumberOfWorkersUAT}
+  pdn:                       ${env:jobNumberOfWorkersPDN}
+jobNumberOfWorkers:          ${self:custom.jobNumberOfWorkersStage.${self:custom.stage}}

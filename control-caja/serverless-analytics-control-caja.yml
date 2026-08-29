@@ -1,0 +1,22 @@
+service: ${self:custom.project}-control-caja
+frameworkVersion: "3"
+useDotenv: true
+
+provider: ${file(./serverless-files/analytics/provider.yml)}
+
+custom: ${file(./serverless-files/analytics/custom.yml)}
+
+package:
+  individually: true
+  exclude:
+    - ./**
+
+plugins:
+  - serverless-python-requirements
+  - serverless-plugin-common-excludes
+
+resources:
+  # ****************** Roles ******************
+  - ${file(./serverless-files/analytics/resources/roles.yml)}
+  # ****************** Jobs ******************
+  - ${file(./serverless-files/analytics/resources/jobs.yml)}

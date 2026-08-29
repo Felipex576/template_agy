@@ -1,0 +1,86 @@
+from enum import Enum
+
+
+class Available(str, Enum):
+    """Cash control disponible T-0 y T-1 categories."""
+    BANCO_REPUBLICA = "banco_republica"
+    BANCOS_COMERCIALES = "bancos_comerciales"
+    BANCOS_USD = "bancos_usd"
+    TRM = "trm"
+    TOTAL = "total"  
+
+
+class CommonColumns(str, Enum):
+    """Cash control disponible T-0 categories."""
+    FECHA_REPORTE = "fecha_reporte"
+    TOTAL = "total"
+    FECHA_GENERACION = "fecha_generacion"
+    TIPO_DISPONIBLE = "tipo_disponible"
+
+
+class Incomes(str, Enum):
+    """Cash control income categories."""
+    CREDITO_005 = "005_credito"
+    CONFIRMING_005 = "005_confirming"
+    DEFINITIVAS_TES_010 = "010_definitivas_tes"
+    DEFINITIVAS_PRIVADA_010 = "010_definitivas_privada"
+    INTERESES_TITULOS_010 = "010_intereses_titulos"
+    SIMULTANEAS_TES_015 = "015_simultaneas_activas_tes_regreso"
+    SIMULTANEAS_PRIVADA_015 = "015_simultaneas_activas_privada_regreso"
+    REPOS_ACTIVOS_015 = "015_repos_activos_regreso"
+    SIMULTANEAS_TES_020 = "020_simultaneas_pasivas_tes_salida"
+    SIMULTANEAS_PRIVADA_020 = "020_simultaneas_pasivas_privada_salida"
+    REPOS_PASIVOS_020 = "020_repos_pasivos_salida"
+    TTV_INGRESO_020 = "020_ttv_ingreso"
+    VARIACION_CC_025 = "025_variacion_cuenta_corriente"
+    RENOVACION_CDT_035 = "035_renovacion_cdt"
+    CAPTACION_CDT_040 = "040_captacion_cdt"
+    DERIVADOS_EST_045 = "045_derivados_estandarizados"
+    DERIVADOS_OTC_045 = "045_derivados_otc"
+    COLOCACION_BONOS_050 = "050_colocacion_bonos"
+    CREDITOS_BANCOS_055 = "055_creditos_bancos"
+    INGRESOS_ACH_060 = "060_ingresos_ach"
+    MULTICASH_COP_060 = "060_multicash_cop"
+    MULTICASH_USD_060 = "060_multicash_usd"
+    COMPENSACION_DOLAR_060 = "060_compensacion_dolar"
+    DIVISAS_SEBRA_060 = "060_divisas_sebra"
+    OTROS_INGRESOS_060 = "060_otros_ingresos"
+
+
+class Expenses(str, Enum):
+    """Cash control expense categories."""
+    SIMULTANEAS_TES_005 = "005_simultaneas_pasivas_tes_regreso"
+    SIMULTANEAS_PRIVADA_005 = "005_simultaneas_pasivas_privada_regreso"
+    REPOS_PASIVOS_005 = "005_repos_pasivos_regreso"
+    TTV_EGRESO_005 = "005_ttv_egreso"
+    SIMULTANEAS_TES_010 = "010_simultaneas_activas_tes_salida"
+    SIMULTANEAS_PRIVADA_010 = "010_simultaneas_activas_privada_salida"
+    REPOS_ACTIVOS_010 = "010_repos_activos_salida"
+    CAPITAL_CDT_015 = "015_vencimiento_capital_cdt"
+    RENDIMIENTOS_CDT_015 = "015_vencimiento_rendimientos_cdt"
+    RECOMPRAS_015 = "015_recompras"
+    DERIVADOS_EST_020 = "020_vencimiento_derivados_estandarizados"
+    DERIVADOS_OTC_020 = "020_vencimiento_derivados_otc"
+    CAPITAL_BONOS_025 = "025_vencimiento_capital_bonos"
+    RENDIMIENTOS_BONOS_025 = "025_vencimiento_rendimientos_bonos"
+    DESEMBOLSO_CREDITO_030 = "030_desembolso_credito"
+    CONFIRMING_030 = "030_confirming"
+    INVERSIONES_TES_035 = "035_compra_inversiones_tes"
+    INVERSIONES_PRIVADA_035 = "035_compra_inversiones_privada"
+    CREDITOS_BANCOS_040 = "040_creditos_bancos"
+    RETIROS_ACH_045 = "045_retiros_ach"
+    GMF_045 = "045_gmf"
+    MULTICASH_COP_045 = "045_multicash_cop"
+    MULTICASH_USD_045 = "045_multicash_usd"
+    COMPENSACION_DOLAR_045 = "045_compensacion_dolar"
+    GASTOS_SEBRA_045 = "045_gastos_sebra"
+    DIVISAS_SEBRA_045 = "045_divisas_sebra"
+    OTROS_EGRESOS_045 = "045_otros_egresos"
+
+
+class Summary(str, Enum):
+    """Canonical summary output column names."""
+    AVAILABLE_VARIATION ="variacion_disponible"
+    TOTAL_FLOW = "total_flujo"
+    DIFF = "diferencia"
+    PERCENTAGE_DIFF = "porcentaje_diferencia"

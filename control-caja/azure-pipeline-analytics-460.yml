@@ -1,0 +1,138 @@
+trigger:
+  branches:
+    include:
+      - development
+      - release
+      - master
+  paths:
+    include:
+      - "report-460/**"
+    exclude:
+      - azure-pipeline.yml*
+
+pool: "BTG Colombia - Azure DevOPS"
+
+resources:
+  repositories:
+    - repository: devops-templates
+      type: git
+      name: devops-templates
+      ref: master
+
+variables:
+  - name: stage
+    ${{ if eq(variables['Build.SourceBranchName'], 'development') }}:
+      value: dev
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'release') }}:
+      value: uat
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'master') }}:
+      value: pdn
+
+  - name: awsCredentials
+    value: SVC-SERVICE-IDP-ANALYTICS-${{upper(variables.stage)}}
+  - name: region
+    value: us-east-1
+
+  - group: dya-da-pipeline-reportes-regulatorios-transversal
+  - group: dya-da-pipeline-reportes-regulatorios-finance-tags
+  - group: dya-da-pipeline-reportes-regulatorios-finance
+
+  - name: deploymentBucketName
+    value: bucket-analytics-$(stage)-serverless
+  - name: pythonVersion
+    value: "3.11"
+  - name: serverlessVersion
+    value: "3"
+  - name: plugginsToInstall
+    value: "serverless-python-requirements serverless-plugin-common-excludes serverless-step-functions"
+  - name: serverlessFile
+    value: serverless-analytics-460.yml
+
+stages:
+  - stage: Sonar_and_Upload_${{ variables.stage }}
+    jobs:
+      - job: tests_sonar
+        displayName: Run tests and Sonar
+        steps:
+          - task: SonarQubePrepare@5.13.0
+            displayName: SonarQube Prepare
+            inputs:
+              SonarQube: "SonarQube-v25.9.0.112764"
+              scannerMode: "CLI"
+              configMode: "manual"
+              cliProjectKey: "$(Build.Repository.Name)"
+              cliProjectName: "$(Build.Repository.Name)"
+              cliSources: "$(System.DefaultWorkingDirectory)/report-460/src"
+              extraProperties: |
+                sonar.branch.name=$(Build.SourceBranchName)
+                sonar.python.coverage.reportPaths=$(System.DefaultWorkingDirectory)/report-460/src/coverage2.xml
+                sonar.exclusions=**/tests/**, **/__init__.py, **/python-libraries/**
+          - task: CmdLine@2
+            inputs:
+              script: |
+                docker build -t test/report-460 $(System.DefaultWorkingDirectory)/report-460
+                docker run -d --name testing_report-460 test/report-460
+                docker cp testing_report-460:/reporte-regulatorio/coverage.xml report-460/src/
+                docker stop testing_report-460
+                docker rm testing_report-460
+                docker rmi test/report-460
+                sed "s%/reporte-regulatorio/src/%%g" report-460/src/coverage.xml > report-460/src/coverage_temp.xml
+                sed "s%<source>/reporte-regulatorio/src</source>%<source>${SYSTEM_DEFAULTWORKINGDIRECTORY}/report-460/src</source>%g" report-460/src/coverage_temp.xml > report-460/src/coverage2.xml
+                rm report-460/src/coverage_temp.xml
+          - task: SonarQubeAnalyze@5
+            displayName: SonarQube Analyze
+          - task: SonarQubePublish@5.0.2
+            displayName: SonarQube Publish
+            inputs:
+              pollingTimeoutSec: "300"
+          - task: sonar-buildbreaker@8
+            displayName: SonarQube Breaker
+            inputs:
+              SonarQube: "Sonar Qube"
+
+  - stage: Upload_Dependencies_${{ variables.stage }}
+    jobs:
+      - job: upload_dependencies
+        displayName: Upload required dependencies
+        steps:
+          - task: S3Upload@1
+            displayName: Load jobs scripts to s3
+            inputs:
+              awsCredentials: $(awsCredentials)
+              regionName: $(region)
+              bucketName: $(projectBucket)
+              sourceFolder: $(System.DefaultWorkingDirectory)/report-460/src/jobs
+              globExpressions: "*.py"
+              targetFolder: $(projectBucketJobsPath)
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: $(System.DefaultWorkingDirectory)/report-460/src
+              includeRootFolder: true
+              archiveType: zip
+              archiveFile: $(System.DefaultWorkingDirectory)/dependencies/dependencies_460.zip
+              replaceExistingArchive: true
+          - task: S3Upload@1
+            displayName: Upload src folder to s3
+            inputs:
+              awsCredentials: $(awsCredentials)
+              regionName: $(region)
+              bucketName: $(projectBucket)
+              sourceFolder: $(System.DefaultWorkingDirectory)/dependencies
+              globExpressions: "dependencies_460.zip"
+              targetFolder: dependencies
+          - task: S3Upload@1
+            displayName: Upload Excel template to trusted bucket
+            inputs:
+              awsCredentials: $(awsCredentials)
+              regionName: $(region)
+              bucketName: $(projectBucket)
+              sourceFolder: $(System.DefaultWorkingDirectory)/report-460/src/utils/extra_files
+              globExpressions: "*"
+              targetFolder: extra_files
+
+  - template: main.yml@devops-templates
+    parameters:
+      service: serverless
+      type: code
+      code: resources
+      workPath: $(System.DefaultWorkingDirectory)/report-460

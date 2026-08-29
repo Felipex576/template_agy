@@ -1,0 +1,18 @@
+FROM python:3.9@sha256:b5f024fa682187ef9305a2b5d2c4bb583bef83356259669fc80273bb2222f5ed
+
+WORKDIR /reporte-regulatorio
+
+COPY ./src ./src
+COPY ./tests ./tests
+COPY requirements.txt .
+
+RUN apt-get install gcc
+RUN pip install -r requirements.txt
+RUN pip install pyspark==3.5.4
+RUN pip install git+https://github.com/awslabs/aws-glue-libs.git
+RUN PYTHONPATH=src python3 -m pytest --cov=src --cov-config=.coveragerc --cov-report=xml
+
+RUN adduser \
+  --disabled-password \
+  "app"
+USER app

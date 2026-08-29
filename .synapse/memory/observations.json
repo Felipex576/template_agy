@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "protocol": "synapse-memory",
+  "project_name": "template_agy",
+  "last_updated": "2026-08-28T21:25:00Z",
+  "observations": [
+    {
+      "id": "OBS-001",
+      "category": "architecture",
+      "title": "Layered AWS Glue & PySpark Architecture",
+      "detail": "Data pipelines strictly decouple jobs/ (orchestration), queries/ (SQL extraction), transformations/ (pure computation), resources/ (I/O managers), config/ (runtime setup), and utils/ (constants/enums/DTOs).",
+      "tags": ["architecture", "glue", "pyspark", "layers"]
+    },
+    {
+      "id": "OBS-002",
+      "category": "convention",
+      "title": "Catalog Column Access via Enums",
+      "detail": "Target Glue Data Catalog column names must always be defined and accessed through Enums (e.g., TableColumns.COLUMN.value) to prevent typos and enable clean refactoring.",
+      "tags": ["conventions", "enums", "data-catalog"]
+    },
+    {
+      "id": "OBS-003",
+      "category": "testing",
+      "title": "Zero-JVM Mocking Architecture for Glue/Spark",
+      "detail": "Pytest suites use dynamic MagicMock and proxy classes (MockColumn, MockFunctions, MockTypes) in conftest.py, running full test suites in seconds without requiring a JVM or Spark cluster.",
+      "tags": ["testing", "pytest", "mocking", "zero-jvm"]
+    },
+    {
+      "id": "OBS-004",
+      "category": "infrastructure",
+      "title": "Hierarchical Variable Resolution (Azure DevOps -> .env -> Serverless)",
+      "detail": "Configuration variables must match identically in camelCase across Azure DevOps Variable Groups, .env, and custom.yml. AWS physical names use kebab-case, and CloudFormation IDs use PascalCase.",
+      "tags": ["devops", "serverless", "naming", "azure-pipelines"]
+    },
+    {
+      "id": "OBS-005",
+      "category": "database",
+      "title": "Athena & Iceberg Query Optimization Rules",
+      "detail": "All Athena queries against Glue Catalog / Apache Iceberg tables must enforce partition filtering on fecha_cargue, avoid SELECT *, and utilize CTEs with constants for parameterized logic.",
+      "tags": ["athena", "iceberg", "trino", "sql-optimization"]
+    }
+  ]
+}

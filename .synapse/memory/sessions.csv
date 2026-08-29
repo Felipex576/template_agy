@@ -1,0 +1,3 @@
+session_id,date,author,summary,active_feature
+SES-001,2026-08-28,Antigravity/Dev,"Standardized global template architecture, universal skills, and specialized subagents.",Architecture Setup
+SES-002,2026-08-28,Antigravity/Dev,"Implemented Synapse Protocol zero-dependency memory and SDD/TDD/RDD framework.",Synapse Implementation

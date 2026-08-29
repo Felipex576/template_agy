@@ -1,0 +1,50 @@
+Resources:
+  controlCajaJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: iam-${self:custom.project}-${self:custom.stage}-controlCajaJobRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+        - arn:aws:iam::aws:policy/AWSGlueConsoleFullAccess
+      Path: /
+      Policies:
+        - PolicyName: "s3policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameTrusted}/**"
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameTrusted}/${self:custom.prefixData}"
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameTrusted}/${self:custom.prefixData}/*"
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameTrusted}/${self:custom.prefixFiles}"
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameTrusted}/${self:custom.prefixFiles}/*"
+                  - !Sub "arn:aws:s3:::${self:custom.datafoundationBucket}/**"
+                  - !Sub "arn:aws:s3:::${self:custom.chronosBucketName}"
+                  - !Sub "arn:aws:s3:::${self:custom.chronosBucketName}/**"
+                  - !Sub "arn:aws:s3:::${self:custom.dataLakeNameStaging}/**"
+                  - !Sub "${self:custom.projectBucketARN}/**"
+        - PolicyName: allow-kms
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "kms:Encrypt"
+                  - "kms:Decrypt"
+                  - "kms:GenerateDataKey"
+                Resource:
+                  - ${self:custom.kmsARN}
