@@ -1,5 +1,0 @@
-﻿[run]
-omit =
-    src/jobs/*
-    tests/*
-    src/config/*
