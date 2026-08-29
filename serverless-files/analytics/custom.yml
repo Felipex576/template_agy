@@ -1,0 +1,24 @@
+﻿stage: ${opt:stage, 'dev'}
+project: ${env:project}
+
+analyticsAccountIdStage:
+  dev: ${env:analyticsAccountIdDEV}
+  uat: ${env:analyticsAccountIdUAT}
+  pdn: ${env:analyticsAccountIdPDN}
+analyticsAccountId: ${self:custom.analyticsAccountIdStage.${self:custom.stage}}
+
+kmsARNStage:
+  dev: ${env:arnKmsDEV}
+  uat: ${env:arnKmsUAT}
+  pdn: ${env:arnKmsPDN}
+kmsARN: ${self:custom.kmsARNStage.${self:custom.stage}}
+
+jobNumberOfWorkersStage:
+  dev: ${env:jobNumberOfWorkersDEV, 2}
+  uat: ${env:jobNumberOfWorkersUAT, 4}
+  pdn: ${env:jobNumberOfWorkersPDN, 10}
+jobNumberOfWorkers: ${self:custom.jobNumberOfWorkersStage.${self:custom.stage}}
+
+glueJobVersion: "4.0"
+dataLakeNameTrusted: s3-${self:custom.analyticsAccountId}-datalake-${self:custom.stage}-trusted
+dataLakeNameStaging: s3-${self:custom.analyticsAccountId}-datalake-${self:custom.stage}-staging
