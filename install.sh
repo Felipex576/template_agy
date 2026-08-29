@@ -19,28 +19,43 @@ install_agent_layer() {
     local src_synapse="$SCRIPT_DIR/.synapse"
     local src_gemini="$SCRIPT_DIR/.gemini"
 
+    local branch="${2:-feature/template_v1}"
+
     # If local source does not exist (remote one-liner execution), download from GitHub
     if [ ! -d "$src_agents" ]; then
-        echo -e "\033[36m  [*] Remote execution detected. Downloading template archive from GitHub...\033[0m"
+        echo -e "\033[36m  [*] Remote execution detected. Downloading template archive from GitHub ($branch)...\033[0m"
         local temp_dir=$(mktemp -d)
-        curl -fsSL https://github.com/Felipex576/template_agy/archive/refs/heads/main.tar.gz | tar -xz -C "$temp_dir"
-        src_agents="$temp_dir/template_agy-main/.agents"
-        src_synapse="$temp_dir/template_agy-main/.synapse"
-        src_gemini="$temp_dir/template_agy-main/.gemini"
+        curl -fsSL "https://github.com/Felipex576/template_agy/archive/refs/heads/$branch.tar.gz" | tar -xz -C "$temp_dir" || \
+        curl -fsSL "https://github.com/Felipex576/template_agy/archive/refs/heads/main.tar.gz" | tar -xz -C "$temp_dir"
+        
+        local extracted_dir=$(find "$temp_dir" -mindepth 1 -maxdepth 1 -type d | head -n 1)
+        src_agents="$extracted_dir/.agents"
+        src_synapse="$extracted_dir/.synapse"
+        src_gemini="$extracted_dir/.gemini"
     fi
 
     if [ -d "$src_agents" ]; then
-        cp -r "$src_agents" "$dest/"
+        mkdir -p "$dest/.agents"
+        cp -r "$src_agents/"* "$dest/.agents/"
+        
+        # Mirror subagents to .claude/agents for native discovery
+        if [ -d "$src_agents/subagents" ]; then
+            mkdir -p "$dest/.claude/agents"
+            cp -r "$src_agents/subagents/"* "$dest/.claude/agents/"
+        fi
+        
         echo -e "\033[32m  [+] Copied .agents/ (Skills, Subagents, AGENTS.md)\033[0m"
     fi
 
     if [ -d "$src_synapse" ]; then
-        cp -r "$src_synapse" "$dest/"
+        mkdir -p "$dest/.synapse"
+        cp -r "$src_synapse/"* "$dest/.synapse/"
         echo -e "\033[32m  [+] Copied .synapse/ (Persistent Memory, SDD Protocol)\033[0m"
     fi
 
     if [ -d "$src_gemini" ]; then
-        cp -r "$src_gemini" "$dest/"
+        mkdir -p "$dest/.gemini"
+        cp -r "$src_gemini/"* "$dest/.gemini/"
         echo -e "\033[32m  [+] Copied .gemini/ (GEMINI.md)\033[0m"
     fi
 

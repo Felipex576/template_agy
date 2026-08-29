@@ -77,6 +77,15 @@ function Copy-Agent-Layer {
             New-Item -ItemType Directory -Path $targetAgents -Force | Out-Null
         }
         Copy-Item -Path "$sourceAgents\*" -Destination $targetAgents -Recurse -Force
+        
+        # Mirror subagents to .claude/agents for native Claude Code discovery
+        $subagentsSrc = Join-Path $sourceAgents "subagents"
+        if (Test-Path $subagentsSrc) {
+            $claudeAgents = Join-Path $Destination ".claude\agents"
+            if (-not (Test-Path $claudeAgents)) { New-Item -ItemType Directory -Path $claudeAgents -Force | Out-Null }
+            Copy-Item -Path "$subagentsSrc\*" -Destination $claudeAgents -Recurse -Force
+        }
+        
         Write-Host "  [+] Copied .agents/ (Skills, Subagents, AGENTS.md)" -ForegroundColor Green
     }
 
