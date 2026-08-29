@@ -66,19 +66,33 @@ function Copy-Agent-Layer {
         $sourceGemini = Join-Path $repoRoot ".gemini"
     }
 
+    # Destination folders
+    $targetAgents = Join-Path $Destination ".agents"
+    $targetSynapse = Join-Path $Destination ".synapse"
+    $targetGemini = Join-Path $Destination ".gemini"
+
     # Copy agent components
     if (Test-Path $sourceAgents) {
-        Copy-Item -Path $sourceAgents -Destination $Destination -Recurse -Force
+        if (-not (Test-Path $targetAgents)) {
+            New-Item -ItemType Directory -Path $targetAgents -Force | Out-Null
+        }
+        Copy-Item -Path "$sourceAgents\*" -Destination $targetAgents -Recurse -Force
         Write-Host "  [+] Copied .agents/ (Skills, Subagents, AGENTS.md)" -ForegroundColor Green
     }
 
     if (Test-Path $sourceSynapse) {
-        Copy-Item -Path $sourceSynapse -Destination $Destination -Recurse -Force
+        if (-not (Test-Path $targetSynapse)) {
+            New-Item -ItemType Directory -Path $targetSynapse -Force | Out-Null
+        }
+        Copy-Item -Path "$sourceSynapse\*" -Destination $targetSynapse -Recurse -Force
         Write-Host "  [+] Copied .synapse/ (Persistent Memory, SDD Protocol)" -ForegroundColor Green
     }
 
     if (Test-Path $sourceGemini) {
-        Copy-Item -Path $sourceGemini -Destination $Destination -Recurse -Force
+        if (-not (Test-Path $targetGemini)) {
+            New-Item -ItemType Directory -Path $targetGemini -Force | Out-Null
+        }
+        Copy-Item -Path "$sourceGemini\*" -Destination $targetGemini -Recurse -Force
         Write-Host "  [+] Copied .gemini/ (GEMINI.md)" -ForegroundColor Green
     }
 
@@ -92,8 +106,8 @@ Please strictly follow the master engineering guidelines in `.agents/AGENTS.md` 
     Write-Host "  [+] Generated CLAUDE.md adapter" -ForegroundColor Green
 
     # Cleanup temp files if any
-    if (Test-Path $tempZip) { Remove-Item -Path $tempZip -Force -ErrorAction SilentlyContinue }
-    if (Test-Path $tempExtract) { Remove-Item -Path $tempExtract -Recurse -Force -ErrorAction SilentlyContinue }
+    if ($tempZip -and (Test-Path $tempZip)) { Remove-Item -Path $tempZip -Force -ErrorAction SilentlyContinue }
+    if ($tempExtract -and (Test-Path $tempExtract)) { Remove-Item -Path $tempExtract -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 function Scaffold-New-Project {
