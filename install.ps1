@@ -28,16 +28,21 @@ function Copy-Agent-Layer {
 
     Write-Host "`n[*] Installing AI Agent Layer (.agents, .synapse, adapters)..." -ForegroundColor Cyan
     
-    $sourceAgents = Join-Path $TemplateSourceDir ".agents"
-    $sourceSynapse = Join-Path $TemplateSourceDir ".synapse"
-    $sourceGemini = Join-Path $TemplateSourceDir ".gemini"
+    $hasLocalSource = $false
+    if (-not [string]::IsNullOrWhiteSpace($TemplateSourceDir)) {
+        if (Test-Path (Join-Path $TemplateSourceDir ".agents")) {
+            $hasLocalSource = $true
+            $sourceAgents = Join-Path $TemplateSourceDir ".agents"
+            $sourceSynapse = Join-Path $TemplateSourceDir ".synapse"
+            $sourceGemini = Join-Path $TemplateSourceDir ".gemini"
+        }
+    }
 
-    # If local source does not exist (remote one-liner execution), download from GitHub
-    if (-not (Test-Path $sourceAgents)) {
+    # If local source does not exist (remote one-liner execution via iex), download from GitHub
+    if (-not $hasLocalSource) {
         Write-Host "  [*] Remote execution detected. Downloading template archive from GitHub ($Branch)..." -ForegroundColor Cyan
         
-        $encodedBranch = $Branch.Replace("/", "%2F")
-        $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/$encodedBranch.zip"
+        $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/$Branch.zip"
         $tempZip = Join-Path $env:TEMP "template_agy_main.zip"
         $tempExtract = Join-Path $env:TEMP "template_agy_extracted"
 
