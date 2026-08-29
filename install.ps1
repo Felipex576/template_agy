@@ -31,19 +31,33 @@ function Copy-Agent-Layer {
     $sourceSynapse = Join-Path $TemplateSourceDir ".synapse"
     $sourceGemini = Join-Path $TemplateSourceDir ".gemini"
 
-    # Destination folders
+    # If local source does not exist (remote one-liner execution), download from GitHub
+    if (-not (Test-Path $sourceAgents)) {
+        Write-Host "  [*] Remote execution detected. Downloading template archive from GitHub..." -ForegroundColor Cyan
+        $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/main.zip"
+        $tempZip = Join-Path $env:TEMP "template_agy_main.zip"
+        $tempExtract = Join-Path $env:TEMP "template_agy_extracted"
+
+        if (Test-Path $tempExtract) { Remove-Item -Path $tempExtract -Recurse -Force }
+        
+        Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+        Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
+        
+        $repoRoot = Join-Path $tempExtract "template_agy-main"
+        $sourceAgents = Join-Path $repoRoot ".agents"
+        $sourceSynapse = Join-Path $repoRoot ".synapse"
+        $sourceGemini = Join-Path $repoRoot ".gemini"
+    }
+
+    # Copy agent components
     if (Test-Path $sourceAgents) {
         Copy-Item -Path $sourceAgents -Destination $Destination -Recurse -Force
         Write-Host "  [+] Copied .agents/ (Skills, Subagents, AGENTS.md)" -ForegroundColor Green
-    } else {
-        Write-Warning "Source .agents directory not found at $sourceAgents"
     }
 
     if (Test-Path $sourceSynapse) {
         Copy-Item -Path $sourceSynapse -Destination $Destination -Recurse -Force
         Write-Host "  [+] Copied .synapse/ (Persistent Memory, SDD Protocol)" -ForegroundColor Green
-    } else {
-        Write-Warning "Source .synapse directory not found at $sourceSynapse"
     }
 
     if (Test-Path $sourceGemini) {
@@ -59,6 +73,10 @@ Please strictly follow the master engineering guidelines in `.agents/AGENTS.md` 
 "@
     Set-Content -Path $claudePath -Value $claudeContent -Force -Encoding UTF8
     Write-Host "  [+] Generated CLAUDE.md adapter" -ForegroundColor Green
+
+    # Cleanup temp files if any
+    if (Test-Path $tempZip) { Remove-Item -Path $tempZip -Force -ErrorAction SilentlyContinue }
+    if (Test-Path $tempExtract) { Remove-Item -Path $tempExtract -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 function Scaffold-New-Project {

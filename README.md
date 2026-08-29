@@ -11,7 +11,7 @@ You can scaffold a new data pipeline or inject the AI agent intelligence layer i
 ### Windows (PowerShell)
 ```powershell
 # Interactive installation from remote repository
-irm https://raw.githubusercontent.com/<org-or-user>/template_agy/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/Felipex576/template_agy/main/install.ps1 | iex
 
 # Or run locally from cloned template
 .\install.ps1
@@ -20,7 +20,7 @@ irm https://raw.githubusercontent.com/<org-or-user>/template_agy/main/install.ps
 ### Linux / macOS (Bash)
 ```bash
 # Interactive installation from remote repository
-curl -fsSL https://raw.githubusercontent.com/<org-or-user>/template_agy/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Felipex576/template_agy/main/install.sh | bash
 
 # Or run locally from cloned template
 ./install.sh

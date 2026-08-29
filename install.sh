@@ -15,18 +15,32 @@ install_agent_layer() {
     local dest="$1"
     echo -e "\n\033[36m[*] Installing AI Agent Layer (.agents, .synapse, adapters)...\033[0m"
     
-    if [ -d "$SCRIPT_DIR/.agents" ]; then
-        cp -r "$SCRIPT_DIR/.agents" "$dest/"
+    local src_agents="$SCRIPT_DIR/.agents"
+    local src_synapse="$SCRIPT_DIR/.synapse"
+    local src_gemini="$SCRIPT_DIR/.gemini"
+
+    # If local source does not exist (remote one-liner execution), download from GitHub
+    if [ ! -d "$src_agents" ]; then
+        echo -e "\033[36m  [*] Remote execution detected. Downloading template archive from GitHub...\033[0m"
+        local temp_dir=$(mktemp -d)
+        curl -fsSL https://github.com/Felipex576/template_agy/archive/refs/heads/main.tar.gz | tar -xz -C "$temp_dir"
+        src_agents="$temp_dir/template_agy-main/.agents"
+        src_synapse="$temp_dir/template_agy-main/.synapse"
+        src_gemini="$temp_dir/template_agy-main/.gemini"
+    fi
+
+    if [ -d "$src_agents" ]; then
+        cp -r "$src_agents" "$dest/"
         echo -e "\033[32m  [+] Copied .agents/ (Skills, Subagents, AGENTS.md)\033[0m"
     fi
 
-    if [ -d "$SCRIPT_DIR/.synapse" ]; then
-        cp -r "$SCRIPT_DIR/.synapse" "$dest/"
+    if [ -d "$src_synapse" ]; then
+        cp -r "$src_synapse" "$dest/"
         echo -e "\033[32m  [+] Copied .synapse/ (Persistent Memory, SDD Protocol)\033[0m"
     fi
 
-    if [ -d "$SCRIPT_DIR/.gemini" ]; then
-        cp -r "$SCRIPT_DIR/.gemini" "$dest/"
+    if [ -d "$src_gemini" ]; then
+        cp -r "$src_gemini" "$dest/"
         echo -e "\033[32m  [+] Copied .gemini/ (GEMINI.md)\033[0m"
     fi
 
@@ -35,6 +49,10 @@ install_agent_layer() {
 Please strictly follow the master engineering guidelines in `.agents/AGENTS.md` and the memory/SDD lifecycle in `.synapse/PROTOCOL.md`.
 EOF
     echo -e "\033[32m  [+] Generated CLAUDE.md adapter\033[0m"
+
+    if [ -n "$temp_dir" ] && [ -d "$temp_dir" ]; then
+        rm -rf "$temp_dir"
+    fi
 }
 
 scaffold_new_project() {
