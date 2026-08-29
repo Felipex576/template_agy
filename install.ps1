@@ -11,7 +11,8 @@ param(
     [string]$TemplateSourceDir = $PSScriptRoot,
     [Nullable[bool]]$IsNew = $null,
     [string]$ProjectName = "",
-    [Nullable[bool]]$InstallAgents = $null
+    [Nullable[bool]]$InstallAgents = $null,
+    [string]$Branch = "feature/template_v1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,17 +34,28 @@ function Copy-Agent-Layer {
 
     # If local source does not exist (remote one-liner execution), download from GitHub
     if (-not (Test-Path $sourceAgents)) {
-        Write-Host "  [*] Remote execution detected. Downloading template archive from GitHub..." -ForegroundColor Cyan
-        $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/main.zip"
+        Write-Host "  [*] Remote execution detected. Downloading template archive from GitHub ($Branch)..." -ForegroundColor Cyan
+        
+        $encodedBranch = $Branch.Replace("/", "%2F")
+        $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/$encodedBranch.zip"
         $tempZip = Join-Path $env:TEMP "template_agy_main.zip"
         $tempExtract = Join-Path $env:TEMP "template_agy_extracted"
 
         if (Test-Path $tempExtract) { Remove-Item -Path $tempExtract -Recurse -Force }
         
-        Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+        try {
+            Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+        } catch {
+            # Fallback to main branch
+            $zipUrl = "https://github.com/Felipex576/template_agy/archive/refs/heads/main.zip"
+            Invoke-WebRequest -Uri $zipUrl -OutFile $tempZip -UseBasicParsing
+        }
+        
         Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
         
-        $repoRoot = Join-Path $tempExtract "template_agy-main"
+        # Dynamically locate the extracted repo root directory
+        $extractedDir = Get-ChildItem -Path $tempExtract -Directory | Select-Object -First 1
+        $repoRoot = $extractedDir.FullName
         $sourceAgents = Join-Path $repoRoot ".agents"
         $sourceSynapse = Join-Path $repoRoot ".synapse"
         $sourceGemini = Join-Path $repoRoot ".gemini"
